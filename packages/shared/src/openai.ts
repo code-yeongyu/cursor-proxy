@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const ChatRoleSchema = z.enum(["system", "user", "assistant", "tool"])
+export const ChatRoleSchema = z.enum(["system", "developer", "user", "assistant", "tool"])
 export type ChatRole = z.infer<typeof ChatRoleSchema>
 
 export const TextContentPartSchema = z.object({

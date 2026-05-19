@@ -50,6 +50,34 @@ describe("chat completions API", () => {
     expect(body.choices[0].message.content).toBe("Hello from Cursor")
   })
 
+  it("#given developer message request #when posted #then OpenAI-compatible clients are accepted", async () => {
+    // given
+    const app = createApp({
+      runner: createMockRunner([{ type: "text", text: "Developer accepted" }]),
+      id: () => "chatcmpl_developer",
+      now: () => 1_000,
+    })
+
+    // when
+    const response = await app.request("/v1/chat/completions", {
+      method: "POST",
+      body: JSON.stringify({
+        model: "cursor-acp/auto",
+        messages: [
+          { role: "developer", content: "Use tools when asked." },
+          { role: "user", content: "Hello" },
+        ],
+        tools: [{ type: "function", function: { name: "bash", parameters: { type: "object" } } }],
+      }),
+      headers: { "Content-Type": "application/json" },
+    })
+
+    // then
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.choices[0].message.content).toBe("Developer accepted")
+  })
+
   it("#given valid stream request #when posted #then SSE chunks and done marker are returned", async () => {
     // given
     const app = createApp({
