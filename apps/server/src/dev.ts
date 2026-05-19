@@ -1,6 +1,7 @@
 import { serve } from "bun"
 import { createApp } from "./app.js"
 import { createRemoteRunnerClient } from "./remote-runner.js"
+import { CURSOR_STREAM_IDLE_TIMEOUT_SECONDS } from "./server-options.js"
 
 const portText = process.env["PORT"] ?? "8787"
 const port = Number.parseInt(portText, 10)
@@ -17,6 +18,7 @@ const app = createApp(runner === undefined ? {} : { runner })
 serve({
   port,
   fetch: app.fetch,
+  idleTimeout: CURSOR_STREAM_IDLE_TIMEOUT_SECONDS,
 })
 
 console.log(`cursor-proxy server listening on http://127.0.0.1:${port}`)
