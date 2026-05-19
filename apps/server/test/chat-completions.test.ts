@@ -98,4 +98,40 @@ describe("chat completions API", () => {
     const body = await response.json()
     expect(body.error.type).toBe("invalid_request_error")
   })
+
+  it("#given worker log level env #when request succeeds #then info logs are suppressed", async () => {
+    // given
+    const app = createApp({
+      runner: createMockRunner([{ type: "text", text: "quiet" }]),
+      id: () => "chatcmpl_quiet",
+      now: () => 1_000,
+    })
+    const originalLog = console.log
+    const lines: string[] = []
+    console.log = (...values: unknown[]) => {
+      lines.push(values.map(String).join(" "))
+    }
+
+    try {
+      // when
+      const response = await app.request(
+        "/v1/chat/completions",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            model: "cursor-acp/auto",
+            messages: [{ role: "user", content: "Hello" }],
+          }),
+          headers: { "Content-Type": "application/json" },
+        },
+        { CURSOR_PROXY_LOG_LEVEL: "error" },
+      )
+
+      // then
+      expect(response.status).toBe(200)
+      expect(lines).toEqual([])
+    } finally {
+      console.log = originalLog
+    }
+  })
 })

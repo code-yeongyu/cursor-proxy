@@ -13,7 +13,7 @@
     "build": "bun build src/worker.ts --target browser --outdir dist",
     "build:node": "bun build src/node.ts --target node --outdir dist-node",
     "start:node": "node dist-node/node.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --project ../../tsconfig.typecheck.json",
     "test": "bun test"
   },
   "dependencies": {

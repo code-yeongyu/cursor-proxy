@@ -1,19 +1,24 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 
-const ROOTS = ["apps", "packages", "scripts"] as const
+const ROOTS: readonly string[] = ["apps", "packages", "scripts"]
 const tsSuppressIgnore = ["no", "ts", "ignore"].join("-")
 const tsSuppressExpect = ["no", "ts", "expect", "error"].join("-")
 const nonNullRule = ["no", "non", "null", "assertion"].join("-")
 const bang = String.fromCharCode(33)
-const FORBIDDEN = [
+type Rule = {
+  readonly name: string
+  readonly pattern: RegExp
+}
+
+const FORBIDDEN: readonly Rule[] = [
   { name: "no-any-annotation", pattern: /:\s*any\b|Promise\s*<\s*any\b|Array\s*<\s*any\b/u },
   { name: tsSuppressIgnore, pattern: new RegExp(`@ts-${"ignore"}`, "u") },
   { name: tsSuppressExpect, pattern: new RegExp(`@ts-${"expect-error"}`, "u") },
   { name: "no-enum", pattern: /(^|[^\w])enum\s+[A-Za-z]/u },
   { name: nonNullRule, pattern: new RegExp(`[A-Za-z0-9_\\])]${bang}`, "u") },
   { name: "no-throw-literal", pattern: /throw\s+["'0-9]/u },
-] as const
+]
 
 async function collectFiles(root: string): Promise<readonly string[]> {
   const proc = Bun.spawn(["rg", "--files", root, "-g", "*.ts", "-g", "!dist", "-g", "!dist-node"], {

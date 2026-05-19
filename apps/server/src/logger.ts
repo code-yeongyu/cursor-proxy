@@ -1,11 +1,11 @@
-const LOG_LEVELS = {
+type LogLevel = "debug" | "info" | "warn" | "error"
+
+const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 10,
   info: 20,
   warn: 30,
   error: 40,
-} as const
-
-type LogLevel = keyof typeof LOG_LEVELS
+}
 
 export type Logger = {
   readonly debug: (message: string, fields?: Record<string, unknown>) => void
@@ -14,25 +14,38 @@ export type Logger = {
   readonly error: (message: string, fields?: Record<string, unknown>) => void
 }
 
-function configuredLevel(): LogLevel {
-  const value = globalThis.process?.env?.["CURSOR_PROXY_LOG_LEVEL"]
+function configuredLevel(readLevel?: () => string | undefined): LogLevel {
+  const value = readLevel?.() ?? globalThis.process?.env?.["CURSOR_PROXY_LOG_LEVEL"]
   if (value === "debug" || value === "info" || value === "warn" || value === "error") {
     return value
   }
   return "info"
 }
 
-function shouldLog(level: LogLevel): boolean {
-  return LOG_LEVELS[level] >= LOG_LEVELS[configuredLevel()]
+function shouldLog(level: LogLevel, readLevel?: () => string | undefined): boolean {
+  return LOG_LEVELS[level] >= LOG_LEVELS[configuredLevel(readLevel)]
+}
+
+function writeLine(level: LogLevel, line: string): void {
+  if (level === "error") {
+    console.error(line)
+    return
+  }
+  if (level === "warn") {
+    console.warn(line)
+    return
+  }
+  console.log(line)
 }
 
 function write(
   level: LogLevel,
   component: string,
   message: string,
+  readLevel?: () => string | undefined,
   fields?: Record<string, unknown>,
 ) {
-  if (!shouldLog(level)) {
+  if (!shouldLog(level, readLevel)) {
     return
   }
 
@@ -43,14 +56,14 @@ function write(
     message,
     fields: fields ?? {},
   }
-  console.error(JSON.stringify(line))
+  writeLine(level, JSON.stringify(line))
 }
 
-export function createLogger(component: string): Logger {
+export function createLogger(component: string, readLevel?: () => string | undefined): Logger {
   return {
-    debug: (message, fields) => write("debug", component, message, fields),
-    info: (message, fields) => write("info", component, message, fields),
-    warn: (message, fields) => write("warn", component, message, fields),
-    error: (message, fields) => write("error", component, message, fields),
+    debug: (message, fields) => write("debug", component, message, readLevel, fields),
+    info: (message, fields) => write("info", component, message, readLevel, fields),
+    warn: (message, fields) => write("warn", component, message, readLevel, fields),
+    error: (message, fields) => write("error", component, message, readLevel, fields),
   }
 }

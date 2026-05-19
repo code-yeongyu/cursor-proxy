@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "bun run src/dev.ts",
     "build": "bun build src/index.ts src/dev.ts --target bun --outdir dist",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --project ../../tsconfig.typecheck.json",
     "test": "bun test"
   },
   "dependencies": {
