@@ -35,6 +35,10 @@ function writeLine(level: LogLevel, line: string): void {
     console.warn(line)
     return
   }
+  if (level === "info") {
+    console.info(line)
+    return
+  }
   console.log(line)
 }
 
