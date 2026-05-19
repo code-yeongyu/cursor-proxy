@@ -91,6 +91,6 @@ Runner machine config:
 ## Repository Policy
 
 - Default branch: `main`.
-- Required checks: `check`, `test`, `typecheck`, `lint`, `check:no-excuse`, `build`.
-- Recommended branch rules: require PR, require status checks, require branch up to date, block force pushes, block deletion.
+- Required checks: `bun`, `pnpm-node`, `cloudflare-workers`.
+- Branch rules: require PR review, require status checks, require branch up to date, require review thread resolution, block force pushes, block deletion.
 - Topics: `cursor`, `openai-compatible`, `hono`, `cloudflare-workers`, `bun`, `pnpm`, `typescript`.
