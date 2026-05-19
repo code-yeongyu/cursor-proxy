@@ -63,6 +63,7 @@ describe("cursor runner", () => {
       "agent",
       "--print",
       "--trust",
+      "--force",
       "--output-format",
       "stream-json",
       "--stream-partial-output",

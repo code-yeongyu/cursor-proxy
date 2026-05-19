@@ -33,6 +33,7 @@ function commandFor(request: RunnerRequest, options: CursorRunnerOptions): reado
     "agent",
     "--print",
     "--trust",
+    "--force",
     "--output-format",
     "stream-json",
     "--stream-partial-output",
