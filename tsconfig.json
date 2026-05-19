@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "include": ["scripts/**/*.ts"],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./apps/server" },
+    { "path": "./apps/runner" }
+  ]
+}

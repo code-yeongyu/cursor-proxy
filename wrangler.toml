@@ -1,0 +1,7 @@
+name = "cursor-proxy"
+main = "apps/server/src/worker.ts"
+compatibility_date = "2026-05-19"
+
+[vars]
+CURSOR_PROXY_LOG_LEVEL = "info"
+

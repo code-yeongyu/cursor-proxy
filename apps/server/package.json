@@ -1,0 +1,30 @@
+{
+  "name": "@cursor-proxy/server",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "bun run src/dev.ts",
+    "build": "bun build src/worker.ts --target browser --outdir dist",
+    "build:node": "bun build src/node.ts --target node --outdir dist-node",
+    "start:node": "node dist-node/node.js",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@cursor-proxy/shared": "workspace:*",
+    "@hono/node-server": "^2.0.3",
+    "@hono/swagger-ui": "^0.6.1",
+    "@scalar/hono-api-reference": "^0.10.11",
+    "hono": "^4.12.5",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260511.1"
+  }
+}
