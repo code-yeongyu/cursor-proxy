@@ -1,5 +1,5 @@
-import { describe, expect, it } from "bun:test"
 import type { RunnerClient, RunnerEvent } from "@cursor-proxy/shared"
+import { describe, expect, it } from "vitest"
 import { createApp } from "../src/app"
 
 function createMockRunner(events: readonly RunnerEvent[]): RunnerClient {
