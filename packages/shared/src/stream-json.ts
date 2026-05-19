@@ -113,6 +113,22 @@ function longestPrefixDelta(previous: string, current: string): string {
   return current.slice(index)
 }
 
+function partialDelta(
+  previous: string,
+  current: string,
+): {
+  readonly delta: string
+  readonly next: string
+} {
+  if (previous.length === 0) {
+    return { delta: current, next: current }
+  }
+  if (current.startsWith(previous)) {
+    return { delta: longestPrefixDelta(previous, current), next: current }
+  }
+  return { delta: current, next: `${previous}${current}` }
+}
+
 export function convertCursorStreamJsonLine(input: {
   readonly line: string
   readonly previousText: string
@@ -160,11 +176,11 @@ export function convertCursorStreamJsonLine(input: {
     const isPartial = typeof event.timestamp_ms === "number"
 
     if (text.length > 0) {
-      const delta = longestPrefixDelta(input.previousText, text)
       if (isPartial) {
+        const partial = partialDelta(input.previousText, text)
         return {
-          event: delta.length > 0 ? { type: "text", text: delta } : undefined,
-          text,
+          event: partial.delta.length > 0 ? { type: "text", text: partial.delta } : undefined,
+          text: partial.next,
           reasoning: input.previousReasoning,
           sawTextPartials: true,
           sawReasoningPartials: input.sawReasoningPartials,
@@ -179,6 +195,7 @@ export function convertCursorStreamJsonLine(input: {
           sawReasoningPartials: input.sawReasoningPartials,
         }
       }
+      const delta = longestPrefixDelta(input.previousText, text)
       return {
         event: delta.length > 0 ? { type: "text", text: delta } : undefined,
         text,
@@ -189,12 +206,12 @@ export function convertCursorStreamJsonLine(input: {
     }
 
     if (reasoning.length > 0) {
-      const delta = longestPrefixDelta(input.previousReasoning, reasoning)
       if (isPartial) {
+        const partial = partialDelta(input.previousReasoning, reasoning)
         return {
-          event: delta.length > 0 ? { type: "reasoning", text: delta } : undefined,
+          event: partial.delta.length > 0 ? { type: "reasoning", text: partial.delta } : undefined,
           text: input.previousText,
-          reasoning,
+          reasoning: partial.next,
           sawTextPartials: input.sawTextPartials,
           sawReasoningPartials: true,
         }
@@ -208,6 +225,7 @@ export function convertCursorStreamJsonLine(input: {
           sawReasoningPartials: input.sawReasoningPartials,
         }
       }
+      const delta = longestPrefixDelta(input.previousReasoning, reasoning)
       return {
         event: delta.length > 0 ? { type: "reasoning", text: delta } : undefined,
         text: input.previousText,

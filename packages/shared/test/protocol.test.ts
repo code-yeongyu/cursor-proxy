@@ -111,4 +111,71 @@ describe("OpenAI protocol helpers", () => {
     expect(second.event).toEqual({ type: "text", text: " this" })
     expect(final.event).toBeUndefined()
   })
+
+  it("#given delta cursor partials #when lines convert #then final accumulated text is not repeated", () => {
+    // given
+    const firstLine =
+      '{"type":"assistant","timestamp_ms":1,"message":{"role":"assistant","content":[{"type":"text","text":"SENPI"}]}}'
+    const secondLine =
+      '{"type":"assistant","timestamp_ms":2,"message":{"role":"assistant","content":[{"type":"text","text":"_OK"}]}}'
+    const finalLine =
+      '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"SENPI_OK"}]}}'
+
+    // when
+    const first = convertCursorStreamJsonLine({
+      line: firstLine,
+      previousText: "",
+      previousReasoning: "",
+      sawTextPartials: false,
+      sawReasoningPartials: false,
+    })
+    const second = convertCursorStreamJsonLine({
+      line: secondLine,
+      previousText: first.text,
+      previousReasoning: first.reasoning,
+      sawTextPartials: first.sawTextPartials,
+      sawReasoningPartials: first.sawReasoningPartials,
+    })
+    const final = convertCursorStreamJsonLine({
+      line: finalLine,
+      previousText: second.text,
+      previousReasoning: second.reasoning,
+      sawTextPartials: second.sawTextPartials,
+      sawReasoningPartials: second.sawReasoningPartials,
+    })
+
+    // then
+    expect(first.event).toEqual({ type: "text", text: "SENPI" })
+    expect(second.event).toEqual({ type: "text", text: "_OK" })
+    expect(final.event).toBeUndefined()
+  })
+
+  it("#given prefix-shaped delta partial #when lines convert #then delta is preserved", () => {
+    // given
+    const firstLine =
+      '{"type":"assistant","timestamp_ms":1,"message":{"role":"assistant","content":[{"type":"text","text":"testing"}]}}'
+    const secondLine =
+      '{"type":"assistant","timestamp_ms":2,"message":{"role":"assistant","content":[{"type":"text","text":"test"}]}}'
+
+    // when
+    const first = convertCursorStreamJsonLine({
+      line: firstLine,
+      previousText: "",
+      previousReasoning: "",
+      sawTextPartials: false,
+      sawReasoningPartials: false,
+    })
+    const second = convertCursorStreamJsonLine({
+      line: secondLine,
+      previousText: first.text,
+      previousReasoning: first.reasoning,
+      sawTextPartials: first.sawTextPartials,
+      sawReasoningPartials: first.sawReasoningPartials,
+    })
+
+    // then
+    expect(first.event).toEqual({ type: "text", text: "testing" })
+    expect(second.event).toEqual({ type: "text", text: "test" })
+    expect(second.text).toBe("testingtest")
+  })
 })
