@@ -6,8 +6,10 @@ import { CURSOR_STREAM_IDLE_TIMEOUT_SECONDS } from "./server-options.js"
 const portText = process.env["PORT"] ?? "8791"
 const port = Number.parseInt(portText, 10)
 const app = createRunnerApp({
+  token: process.env["CURSOR_RUNNER_TOKEN"],
   runnerOptions: {
     cursorBinary: process.env["CURSOR_BINARY"] ?? "cursor",
+    cursorAgentDirect: process.env["CURSOR_AGENT_DIRECT"] === "true",
     workspace: process.env["CURSOR_WORKSPACE"],
     spawner: createBunSpawner(),
     env: Bun.env,

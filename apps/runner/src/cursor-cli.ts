@@ -21,6 +21,7 @@ export type CursorSpawner = {
 
 export type CursorRunnerOptions = {
   readonly cursorBinary: string
+  readonly cursorAgentDirect: boolean
   readonly workspace?: string | undefined
   readonly spawner: CursorSpawner
   readonly env: Record<string, string | undefined>
@@ -30,7 +31,7 @@ function commandFor(request: RunnerRequest, options: CursorRunnerOptions): reado
   const workspace = request.workspace ?? options.workspace
   const base = [
     options.cursorBinary,
-    "agent",
+    ...(options.cursorAgentDirect ? [] : ["agent"]),
     "--print",
     "--trust",
     "--force",

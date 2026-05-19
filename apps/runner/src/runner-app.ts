@@ -10,6 +10,7 @@ export type RunnerBindings = {
 
 export type RunnerAppOptions = {
   readonly runnerOptions?: Partial<CursorRunnerOptions>
+  readonly token?: string | undefined
 }
 
 function authorized(request: Request, token: string | undefined): boolean {
@@ -28,7 +29,8 @@ export function createRunnerApp(options: RunnerAppOptions = {}) {
 
   app.get("/health", (context) => context.json({ ok: true, service: "cursor-proxy-runner" }))
   app.post("/run", async (context) => {
-    if (!authorized(context.req.raw, context.env.CURSOR_RUNNER_TOKEN)) {
+    const token = options.token ?? context.env.CURSOR_RUNNER_TOKEN
+    if (!authorized(context.req.raw, token)) {
       return context.json({ error: "Unauthorized" }, 401)
     }
 
@@ -40,6 +42,7 @@ export function createRunnerApp(options: RunnerAppOptions = {}) {
 
     const runnerOptions = {
       cursorBinary: options.runnerOptions?.cursorBinary ?? context.env.CURSOR_BINARY ?? "cursor",
+      cursorAgentDirect: options.runnerOptions?.cursorAgentDirect ?? false,
       spawner: options.runnerOptions?.spawner ?? createBunSpawner(),
       env: options.runnerOptions?.env ?? Bun.env,
     }
