@@ -73,4 +73,42 @@ describe("OpenAI protocol helpers", () => {
     expect(first.event).toEqual({ type: "text", text: "Hi" })
     expect(second.event).toEqual({ type: "text", text: " there" })
   })
+
+  it("#given cumulative cursor partials #when lines convert #then streamed deltas are not duplicated", () => {
+    // given
+    const firstLine =
+      '{"type":"assistant","timestamp_ms":1,"message":{"role":"assistant","content":[{"type":"text","text":"I read"}]}}'
+    const secondLine =
+      '{"type":"assistant","timestamp_ms":2,"message":{"role":"assistant","content":[{"type":"text","text":"I read this"}]}}'
+    const finalLine =
+      '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"I read this"}]}}'
+
+    // when
+    const first = convertCursorStreamJsonLine({
+      line: firstLine,
+      previousText: "",
+      previousReasoning: "",
+      sawTextPartials: false,
+      sawReasoningPartials: false,
+    })
+    const second = convertCursorStreamJsonLine({
+      line: secondLine,
+      previousText: first.text,
+      previousReasoning: first.reasoning,
+      sawTextPartials: first.sawTextPartials,
+      sawReasoningPartials: first.sawReasoningPartials,
+    })
+    const final = convertCursorStreamJsonLine({
+      line: finalLine,
+      previousText: second.text,
+      previousReasoning: second.reasoning,
+      sawTextPartials: second.sawTextPartials,
+      sawReasoningPartials: second.sawReasoningPartials,
+    })
+
+    // then
+    expect(first.event).toEqual({ type: "text", text: "I read" })
+    expect(second.event).toEqual({ type: "text", text: " this" })
+    expect(final.event).toBeUndefined()
+  })
 })
