@@ -13,6 +13,7 @@ describe("OpenAI protocol helpers", () => {
       model: "cursor-acp/auto",
       messages: [
         { role: "system", content: "Be concise." },
+        { role: "developer", content: "Prefer tool use when requested." },
         { role: "user", content: [{ type: "text", text: "Hello" }] },
         { role: "tool", tool_call_id: "call_1", content: "42" },
       ],
@@ -23,6 +24,7 @@ describe("OpenAI protocol helpers", () => {
 
     // then
     expect(prompt).toContain("SYSTEM: Be concise.")
+    expect(prompt).toContain("DEVELOPER: Prefer tool use when requested.")
     expect(prompt).toContain("USER: Hello")
     expect(prompt).toContain("TOOL_RESULT (call_id: call_1): 42")
   })
