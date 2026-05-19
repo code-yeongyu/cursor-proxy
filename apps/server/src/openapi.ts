@@ -61,5 +61,5 @@ export function createOpenApiDocument() {
         },
       },
     },
-  } as const
+  }
 }

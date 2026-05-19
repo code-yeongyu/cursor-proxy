@@ -1,3 +1,4 @@
+import type { RunnerEvent } from "@cursor-proxy/shared"
 import { serve } from "bun"
 
 const portText = process.env["PORT"] ?? "8799"
@@ -17,7 +18,10 @@ serve({
     const body = await request.json().catch(() => ({ stream: false }))
     const stream =
       typeof body === "object" && body !== null && "stream" in body && body.stream === true
-    const events = [{ type: "text", text: "mock cursor says hi" }, { type: "done" }] as const
+    const events: readonly RunnerEvent[] = [
+      { type: "text", text: "mock cursor says hi" },
+      { type: "done" },
+    ]
 
     if (!stream) {
       return Response.json(events)

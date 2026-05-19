@@ -17,6 +17,7 @@ import { createRemoteRunnerClient } from "./remote-runner.js"
 export type ServerBindings = {
   readonly CURSOR_RUNNER_URL?: string
   readonly CURSOR_RUNNER_TOKEN?: string
+  readonly CURSOR_PROXY_LOG_LEVEL?: string
 }
 
 export type AppOptions = {
@@ -24,8 +25,6 @@ export type AppOptions = {
   readonly now?: () => number
   readonly id?: () => string
 }
-
-const log = createLogger("server")
 
 function resolveRunner(env: ServerBindings, explicit: RunnerClient | undefined): RunnerClient {
   if (explicit !== undefined) {
@@ -75,6 +74,7 @@ export function createApp(options: AppOptions = {}) {
   )
 
   app.post("/v1/chat/completions", async (context) => {
+    const log = createLogger("server", () => context.env?.CURSOR_PROXY_LOG_LEVEL)
     const requestId = options.id?.() ?? crypto.randomUUID()
     const created = Math.floor((options.now?.() ?? Date.now()) / 1000)
     const json = await context.req.json().catch(() => undefined)

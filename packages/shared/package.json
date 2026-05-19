@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts --target bun --outdir dist",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --project ../../tsconfig.typecheck.json",
     "test": "bun test"
   },
   "dependencies": {

@@ -3,6 +3,11 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@cursor-proxy/shared": ["packages/shared/src/index.ts"]
+    },
     "lib": ["ESNext", "WebWorker"],
     "types": ["bun", "node"],
     "strict": true,
