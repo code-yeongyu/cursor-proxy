@@ -6,42 +6,59 @@ on:
     branches: ["main"]
 
 jobs:
-  bun:
+  runtime:
+    name: ${{ matrix.runtime }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: ["bun", "pnpm-node"]
     steps:
       - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v3
+      - if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.3.12"
-      - run: bun install --frozen-lockfile
-      - run: bun run typecheck
-      - run: bun run lint
-      - run: bun run check:no-excuse
-      - run: bun test
-      - run: bun run build
-
-  pnpm-node:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-      - uses: pnpm/action-setup@v5
+      - if: matrix.runtime == 'pnpm-node'
+        uses: pnpm/action-setup@v5
         with:
           version: "11.1.2"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm check:no-excuse
-      - run: pnpm test
-      - run: pnpm node:build
+      - if: matrix.runtime == 'pnpm-node'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - if: matrix.runtime == 'bun'
+        run: bun install --frozen-lockfile
+      - if: matrix.runtime == 'bun'
+        run: bun run typecheck
+      - if: matrix.runtime == 'bun'
+        run: bun run lint
+      - if: matrix.runtime == 'bun'
+        run: bun run check:no-excuse
+      - if: matrix.runtime == 'bun'
+        run: bun test
+      - if: matrix.runtime == 'bun'
+        run: bun run build
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm install --frozen-lockfile
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm typecheck
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm lint
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm check:no-excuse
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm test
+      - if: matrix.runtime == 'pnpm-node'
+        run: pnpm node:build
 
   cloudflare-workers:
+    name: cloudflare-workers
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v3
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.3.12"
       - run: bun install --frozen-lockfile
