@@ -25,6 +25,23 @@ function createMockRunner(events: readonly RunnerEvent[]): RunnerClient {
 }
 
 describe("chat completions API", () => {
+  it("#given model catalog request #when listed #then cursor composer models are discoverable", async () => {
+    // given
+    const app = createApp({ runner: createMockRunner([]) })
+
+    // when
+    const response = await app.request("/v1/models")
+
+    // then
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.data.map((model: { readonly id: string }) => model.id)).toEqual([
+      "cursor-acp/auto",
+      "composer-2.5",
+      "composer-2.5-fast",
+    ])
+  })
+
   it("#given valid non-stream request #when posted #then OpenAI chat completion is returned", async () => {
     // given
     const app = createApp({

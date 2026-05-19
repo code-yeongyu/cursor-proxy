@@ -26,6 +26,27 @@ export type AppOptions = {
   readonly id?: () => string
 }
 
+const CURSOR_MODELS = [
+  {
+    id: "cursor-acp/auto",
+    object: "model",
+    created: 0,
+    owned_by: "cursor",
+  },
+  {
+    id: "composer-2.5",
+    object: "model",
+    created: 0,
+    owned_by: "cursor",
+  },
+  {
+    id: "composer-2.5-fast",
+    object: "model",
+    created: 0,
+    owned_by: "cursor",
+  },
+] as const
+
 function resolveRunner(env: ServerBindings, explicit: RunnerClient | undefined): RunnerClient {
   if (explicit !== undefined) {
     return explicit
@@ -62,14 +83,7 @@ export function createApp(options: AppOptions = {}) {
   app.get("/v1/models", (context) =>
     context.json({
       object: "list",
-      data: [
-        {
-          id: "cursor-acp/auto",
-          object: "model",
-          created: 0,
-          owned_by: "cursor",
-        },
-      ],
+      data: CURSOR_MODELS,
     }),
   )
 
